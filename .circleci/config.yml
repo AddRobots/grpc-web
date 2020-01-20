@@ -13,7 +13,7 @@ jobs:
   test:
     <<: *defaults
     steps:
-      - checkout
+      - checkout:
           path: ~/improbable-grpc-web
 
       - restore_cache:
