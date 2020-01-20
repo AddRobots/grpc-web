@@ -19,12 +19,14 @@ export interface ClientRpcOptions extends RpcOptions {
 export interface Client<TRequest extends ProtobufMessage, TResponse extends ProtobufMessage> {
   start(metadata?: Metadata.ConstructorArg): void;
   send(message: TRequest): void;
+  sendWithCallback(message: TRequest, callback: (message: TResponse) => void): void;
   finishSend(): void;
   close(): void;
 
   onHeaders(callback: (headers: Metadata) => void): void;
   onMessage(callback: (message: TResponse) => void): void;
   onEnd(callback: (code: Code, message: string, trailers: Metadata) => void): void;
+  onError(callback: (code: Code, message: string, trailers: Metadata) => void): void;
 }
 
 export function client<TRequest extends ProtobufMessage, TResponse extends ProtobufMessage, M extends MethodDefinition<TRequest, TResponse>>(methodDescriptor: M, props: ClientRpcOptions): Client<TRequest, TResponse> {
@@ -44,6 +46,7 @@ class GrpcClient<TRequest extends ProtobufMessage, TResponse extends ProtobufMes
   onHeadersCallbacks: Array<(headers: Metadata) => void> = [];
   onMessageCallbacks: Array<(res: TResponse) => void> = [];
   onEndCallbacks: Array<(code: Code, message: string, trailers: Metadata) => void> = [];
+  onErrorCallbacks: Array<(code: Code, message: string, trailers: Metadata) => void> = [];
 
   transport: Transport;
   parser = new ChunkParser();
@@ -67,6 +70,7 @@ class GrpcClient<TRequest extends ProtobufMessage, TResponse extends ProtobufMes
       onHeaders: this.onTransportHeaders.bind(this),
       onChunk: this.onTransportChunk.bind(this),
       onEnd: this.onTransportEnd.bind(this),
+      onError: this.onTransportEnd.bind(this)
     };
 
     if (this.props.transport) {
@@ -228,9 +232,7 @@ class GrpcClient<TRequest extends ProtobufMessage, TResponse extends ProtobufMes
 
   rawOnError(code: Code, msg: string, trailers: Metadata = new Metadata()) {
     this.props.debug && debug("rawOnError", code, msg);
-    if (this.completed) return;
-    this.completed = true;
-    this.onEndCallbacks.forEach(callback => {
+    this.onErrorCallbacks.forEach(callback => {
       if (this.closed) return;
       try {
         callback(code, msg, trailers);
@@ -269,6 +271,10 @@ class GrpcClient<TRequest extends ProtobufMessage, TResponse extends ProtobufMes
     this.onEndCallbacks.push(callback);
   }
 
+  onError(callback: (code: Code, message: string, trailers: Metadata) => void) {
+    this.onErrorCallbacks.push(callback);
+  }
+
   start(metadata?: Metadata.ConstructorArg) {
     if (this.started) {
       throw new Error("Client already started - cannot .start()");
@@ -299,6 +305,12 @@ class GrpcClient<TRequest extends ProtobufMessage, TResponse extends ProtobufMes
     this.sentFirstMessage = true;
     const msgBytes = frameRequest(msg);
     this.transport.sendMessage(msgBytes);
+  }
+
+  sendWithCallback(message: TRequest, callback: (message: TResponse) => void) {
+    this.onMessageCallbacks = [];
+    this.onMessageCallbacks.push(callback);
+    this.send(message);
   }
 
   finishSend() {

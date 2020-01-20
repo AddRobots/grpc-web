@@ -72,6 +72,7 @@ function websocketRequest(options: TransportOptions): Transport {
 
       ws.onerror = function (error) {
         options.debug && debug("websocketRequest.onerror", error);
+        options.onError();
       };
 
       ws.onmessage = function (e) {

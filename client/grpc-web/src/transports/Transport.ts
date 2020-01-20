@@ -27,6 +27,7 @@ export interface TransportOptions {
   onHeaders: (headers: Metadata, status: number) => void;
   onChunk: (chunkBytes: Uint8Array, flush?: boolean) => void;
   onEnd: (err?: Error) => void;
+  onError: (err?: Error) => void;
 }
 
 export interface TransportFactory {
