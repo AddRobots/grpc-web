@@ -14,7 +14,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-        path: ~/improbable-grpc-web
+          path: ~/improbable-grpc-web
 
       - restore_cache:
           keys:
@@ -42,7 +42,6 @@ jobs:
           at: ~/improbable-grpc-web/client/grpc-web
       - run:
           name: Authenticate with registry
-#          command: echo "//registry.npmjs.org/:_authToken=$GIT_TOKEN" > ~/repo/.npmrc
           command: |
             echo "@addrobots:registry=https://npm.pkg.github.com/" > ~/.npmrc
             echo "//npm.pkg.github.com/:_authToken=\"$GITHUB_AUTH_TOKEN\"" >> ~/.npmrc
