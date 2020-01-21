@@ -1,6 +1,6 @@
 {
   "name": "@addrobots/grpc-web",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "gRPC-Web client for browsers (JS/TS)",
   "main": "dist/grpc-web-client.js",
   "browser": "dist/grpc-web-client.umd.js",
@@ -19,7 +19,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "github.com/addrobots/grpc-web"
+    "url": "git+https://github.com/addrobots/grpc-web.git"
   },
   "keywords": [
     "grpc",
