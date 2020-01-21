@@ -12,6 +12,7 @@
     "lib:build-dev": "npm run clean && webpack -d --mode development"
   },
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com/",
     "access": "public"
   },
   "author": "Improbable",
