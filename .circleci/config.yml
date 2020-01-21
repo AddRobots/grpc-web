@@ -42,10 +42,7 @@ jobs:
           at: ~/improbable-grpc-web/client/grpc-web
       - run:
           name: Authenticate with registry
-          command: |
-            echo "@addrobots:registry=https://npm.pkg.github.com/" > ~/.npmrc
-            echo "//npm.pkg.github.com/:_authToken=\"$GITHUB_AUTH_TOKEN\"" >> ~/.npmrc
-            npm set @addrobots:registry https://npm.pkg.github.com
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
       - run:
           name: Publish package
           command: npm publish
