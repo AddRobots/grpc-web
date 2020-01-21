@@ -30,7 +30,7 @@ jobs:
             npm install webpack-cli
       - run:
           name: Build library
-          command: npm run clean && webpack
+          command: npm run lib:build
 
       - save_cache:
           paths:
